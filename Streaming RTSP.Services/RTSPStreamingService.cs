@@ -24,8 +24,6 @@ namespace Streaming_RTSP.Services
 
         private readonly IEventAggregator _eventAggregator;
 
-        public event Action<BitmapSource> FrameReady;
-
         public RTSPStreamingService(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
@@ -67,7 +65,6 @@ namespace Streaming_RTSP.Services
 
                         Application.Current.Dispatcher.Invoke(() =>
                         {
-                            FrameReady?.Invoke(bitmapSource);
                             _eventAggregator.GetEvent<UpdateFrameViewerEvent>().Publish(bitmapSource);
                         });
                     }

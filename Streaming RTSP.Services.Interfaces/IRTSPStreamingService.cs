@@ -9,8 +9,6 @@ namespace Streaming_RTSP.Services.Interfaces
 {
     public interface IRTSPStreamingService
     {
-        event Action<BitmapSource> FrameReady;
-
         void StartStream(string rtspUrl);
 
         void StopStream();

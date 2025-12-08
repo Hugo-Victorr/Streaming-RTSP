@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{6AEA138C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streaming RTSP.Services.Tests", "Streaming RTSP.Services.Tests\Streaming RTSP.Services.Tests.csproj", "{7D63D088-FF74-41C0-8595-671D4C7E05E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streaming RTSP.Core", "Streaming RTSP.Core\Streaming RTSP.Core.csproj", "{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,14 @@ Global
 		{7D63D088-FF74-41C0-8595-671D4C7E05E1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7D63D088-FF74-41C0-8595-671D4C7E05E1}.Release|x64.ActiveCfg = Release|Any CPU
 		{7D63D088-FF74-41C0-8595-671D4C7E05E1}.Release|x64.Build.0 = Release|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Debug|x64.Build.0 = Debug|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Release|x64.ActiveCfg = Release|Any CPU
+		{88CE5E4A-5084-4FA2-AECB-0D8EBBEEBBEA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

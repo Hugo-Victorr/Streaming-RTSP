@@ -6,6 +6,12 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
     <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Streaming RTSP.Core\Streaming RTSP.Core.csproj" />
+    <ProjectReference Include="..\Streaming RTSP.Services.Interfaces\Streaming RTSP.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\Streaming RTSP.Services\Streaming RTSP.Services.csproj" />
   </ItemGroup>
 </Project>

@@ -5,7 +5,9 @@
     <RootNamespace>Streaming_RTSP.Core</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <UseWPF>true</UseWPF>
+	  <UseWPF>True</UseWPF>
+	  <Platforms>AnyCPU;x64</Platforms>
+	  <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

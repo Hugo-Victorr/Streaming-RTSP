@@ -19,6 +19,7 @@ namespace Streaming_RTSP
         protected override void OnStartup(StartupEventArgs e)
         {
             FFMediaToolkit.FFmpegLoader.FFmpegPath = "ffmpeg";
+            base.OnStartup(e);
         }
 
         protected override Window CreateShell()
@@ -30,6 +31,9 @@ namespace Streaming_RTSP
         {
             containerRegistry.RegisterSingleton<IEventAggregator, EventAggregator>();
             containerRegistry.RegisterSingleton<IRTSPStreamingService, RTSPStreamingService>();
+
+
+            containerRegistry.Register<MainWindowViewModel>();
         }
     }
 }

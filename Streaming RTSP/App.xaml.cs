@@ -18,7 +18,7 @@ namespace Streaming_RTSP
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            FFMediaToolkit.FFmpegLoader.FFmpegPath = "ffmpeg";
+            FFMediaToolkit.FFmpegLoader.FFmpegPath = @"C:\ffmpeg\bin";
             base.OnStartup(e);
         }
 

@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
     <PackageReference Include="Prism.Core" Version="8.1.97" />
   </ItemGroup>
 

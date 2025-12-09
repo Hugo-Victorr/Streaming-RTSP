@@ -5,6 +5,17 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}" Height="350" Width="525" >
     <Grid>
-        <ContentControl prism:RegionManager.RegionName="ContentRegion" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80*"/>
+            <RowDefinition Height="20*"/>
+        </Grid.RowDefinitions>
+        <Image Source="{Binding ImageSource, UpdateSourceTrigger=PropertyChanged}" Stretch="Uniform"/>
+
+        <Button Content="Iniciar Stream" 
+                    Grid.Row="1"
+            Command="{Binding StartStreamCommand}" 
+            HorizontalAlignment="Right" 
+            VerticalAlignment="Bottom"
+            Margin="10"/>
     </Grid>
 </Window>

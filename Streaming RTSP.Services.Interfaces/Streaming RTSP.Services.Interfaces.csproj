@@ -14,4 +14,8 @@
     <PackageReference Include="Vlc.DotNet.Wpf" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Streaming RTSP.Core\Streaming RTSP.Core.csproj" />
+  </ItemGroup>
+
 </Project>

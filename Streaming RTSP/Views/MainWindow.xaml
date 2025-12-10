@@ -10,12 +10,18 @@
             <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
         <Image Source="{Binding ImageSource, UpdateSourceTrigger=PropertyChanged}" Stretch="Uniform"/>
-
-        <Button Content="Iniciar Stream" 
-                    Grid.Row="1"
-            Command="{Binding StartStreamCommand}" 
-            HorizontalAlignment="Right" 
-            VerticalAlignment="Bottom"
-            Margin="10"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button Content="Iniciar Stream" 
+                Command="{Binding StartStreamCommand}" 
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom"
+                Margin="10"/>
+            <Button Content="Parar Stream" 
+                Command="{Binding StopStreamCommand}" 
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom"
+                Margin="10"/>
+        </StackPanel>
+        
     </Grid>
 </Window>

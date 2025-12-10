@@ -19,7 +19,10 @@ namespace Streaming_RTSP.ViewModels
             set => SetProperty(ref _imageSource, value);
         }
 
+        private WriteableBitmap writeableBitmap;
+
         public DelegateCommand StartStreamCommand { get; }
+        public DelegateCommand StopStreamCommand { get; }
 
         private readonly IRTSPStreamingService _rtspService;
         private readonly IEventAggregator _eventAggregator;
@@ -29,15 +32,23 @@ namespace Streaming_RTSP.ViewModels
             _rtspService = rtspService;
             _eventAggregator = eventAggreggator;
 
-            _eventAggregator.GetEvent<UpdateFrameViewerEvent>().Subscribe(OnFrameReady);
+            _eventAggregator.GetEvent<UpdateFrameViewerEvent>()
+                .Subscribe(OnFrameReady, ThreadOption.UIThread);
 
             StartStreamCommand = new DelegateCommand(ExecuteStartStream);
+            StopStreamCommand = new DelegateCommand(ExecuteStopStream);
         }
 
         private void ExecuteStartStream()
         {
             string rtspUrl = "rtsp://localhost:8554/stream";
             _rtspService.StartStream(rtspUrl);
+        }
+
+        private void ExecuteStopStream()
+        {
+            _rtspService.StopStream();
+            ImageSource = null;
         }
 
         private void OnFrameReady(BitmapSource newFrame)

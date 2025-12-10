@@ -22,6 +22,7 @@ namespace Streaming_RTSP.Services
         private CancellationTokenSource _cts;
         private MediaFile _file;
         private string _rtspUrl;
+        private WriteableBitmap _writeableBitmap;
 
         private readonly IEventAggregator _eventAggregator;
 
@@ -30,22 +31,46 @@ namespace Streaming_RTSP.Services
             _eventAggregator = eventAggregator;
         }
 
-        public void StartStream(string rtspUrl)
+        private void Initialize(string rtspUrl)
         {
-            if(_file != null)
-            {
-                StopStream();
-                return;
-            }
-
             _rtspUrl = rtspUrl;
-            _cts = new CancellationTokenSource();
-            _decodingTask = Task.Run(() => DecodingLoopAsync(_cts.Token), _cts.Token);
+            _file = MediaFile.Open(@$"{_rtspUrl}", new MediaOptions() { VideoPixelFormat = ImagePixelFormat.Bgra32 });
+            _writeableBitmap = new WriteableBitmap(_file.Video.Info.FrameSize.Width, _file.Video.Info.FrameSize.Height, 96, 96, PixelFormats.Bgra32, null);
         }
 
+        /// <summary>
+        /// Iniciar a tarefa de decoding do stream RTSP.
+        /// </summary>
+        /// <param name="rtspUrl"></param>
+        public void StartStream(string rtspUrl)
+        {
+            if (_file != null)
+                return;
+
+            Initialize(rtspUrl);
+            _cts = new CancellationTokenSource();
+            _decodingTask = Task.Run(() => DecodingLoopAsync(_cts.Token), _cts.Token);
+            _decodingTask.ContinueWith(Dispose,
+                TaskContinuationOptions.None);
+        }
+
+        /// <summary>
+        /// Cancela a tarefa de decoding do stream RTSP.
+        /// </summary>
         public void StopStream()
         {
-            if(!_cts.IsCancellationRequested)
+            CancelStream();
+        }
+
+        /// <summary>
+        /// Cancela o CancellationToken.
+        /// </summary>
+        private void CancelStream()
+        {
+            if (_file == null)
+                return;
+
+            if (!_cts.IsCancellationRequested)
                 _cts?.Cancel();
         }
 
@@ -56,22 +81,24 @@ namespace Streaming_RTSP.Services
         {
             try
             {
-                _file = MediaFile.Open(@$"{_rtspUrl}", new MediaOptions() { VideoPixelFormat = ImagePixelFormat.Rgba32 });
-                
                 while (!ct.IsCancellationRequested)
                 {
-                    if (_file.Video.TryGetNextFrame(out var frame))
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        var bitmapSource = ConvertFrameToBitmapSource(frame);
+                        _writeableBitmap.Lock();
+                        var success = _file.Video.TryGetNextFrame(_writeableBitmap.BackBuffer, _writeableBitmap.BackBufferStride);
+                        if (success)
+                            _writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, _file.Video.Info.FrameSize.Width, _file.Video.Info.FrameSize.Height));
 
-                        if (bitmapSource.CanFreeze)
-                            bitmapSource.Freeze();
+                        _writeableBitmap.Unlock();
 
-                        _eventAggregator.GetEvent<UpdateFrameViewerEvent>().Publish(bitmapSource);
-                        continue;
-                    }
+                        if (success)
+                            _eventAggregator.GetEvent<UpdateFrameViewerEvent>().Publish(_writeableBitmap);
+                        else
+                            StopStream();
+                    });
 
-                    StopStream();
+                    await Task.Delay(32, ct);
                 }
             }
             catch (OperationCanceledException)
@@ -80,37 +107,20 @@ namespace Streaming_RTSP.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro no stream RTSP: {ex.Message}");
-            }
-            finally
-            {
-                Dispose();
+                Console.WriteLine($"Erro no stream RTSP: {ex.Message} - {ex.InnerException} - StackTrace: {ex.StackTrace}");
             }
         }
 
-        /// <summary>
-        /// Converte o objeto BitmapData em um BitmapSource.
-        /// </summary>
-        private BitmapSource ConvertFrameToBitmapSource(ImageData frame)
-        {
-            var bitmap = BitmapSource.Create(
-                            frame.ImageSize.Width,
-                            frame.ImageSize.Height,
-                            96,
-                            96,
-                            PixelFormats.Bgra32,
-                            null,
-                            frame.Data.ToArray(),
-                            frame.ImageSize.Width * 4
-                        );
-
-            return bitmap;
-        }
-
-        public void Dispose()
+        public void Dispose(Task completedTask)
         {
             _file?.Dispose();
             _file = null;
+
+            _decodingTask = null;
+
+            _writeableBitmap = null;
+
+            _cts?.Dispose();
         }
     }
 }

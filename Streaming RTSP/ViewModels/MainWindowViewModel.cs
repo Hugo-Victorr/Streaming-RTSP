@@ -23,20 +23,40 @@ namespace Streaming_RTSP.ViewModels
 
         public DelegateCommand StartStreamCommand { get; }
         public DelegateCommand StopStreamCommand { get; }
+        public DelegateCommand TakeFrameCommand { get; }
 
-        private readonly IRTSPStreamingService _rtspService;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IRTSPStreamingService _rtspService;
+        private readonly ILocalImageService _localImageService;
 
-        public MainWindowViewModel(IEventAggregator eventAggreggator, IRTSPStreamingService rtspService)
+        public MainWindowViewModel(
+            IEventAggregator eventAggreggator, 
+            IRTSPStreamingService rtspService, 
+            ILocalImageService localImageService)
         {
-            _rtspService = rtspService;
             _eventAggregator = eventAggreggator;
+            _rtspService = rtspService;
+            _localImageService = localImageService;
+
+
 
             _eventAggregator.GetEvent<UpdateFrameViewerEvent>()
                 .Subscribe(OnFrameReady, ThreadOption.UIThread);
 
             StartStreamCommand = new DelegateCommand(ExecuteStartStream);
             StopStreamCommand = new DelegateCommand(ExecuteStopStream);
+            TakeFrameCommand = new DelegateCommand(ExecuteTakeFrame, CanExecuteTakeFrame);
+            _localImageService = localImageService;
+        }
+
+        private bool CanExecuteTakeFrame()
+        {
+            return ImageSource != null;
+        }
+
+        private void ExecuteTakeFrame()
+        {
+            _localImageService.SaveFrame(ImageSource, Core.Enums.ImageFormat.PNG);
         }
 
         private void ExecuteStartStream()
@@ -49,11 +69,13 @@ namespace Streaming_RTSP.ViewModels
         {
             _rtspService.StopStream();
             ImageSource = null;
+            TakeFrameCommand.RaiseCanExecuteChanged();
         }
 
         private void OnFrameReady(BitmapSource newFrame)
         {
             ImageSource = newFrame;
+            TakeFrameCommand.RaiseCanExecuteChanged();
         }
 
         public void Dispose()

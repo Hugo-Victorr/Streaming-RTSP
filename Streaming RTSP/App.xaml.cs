@@ -34,6 +34,7 @@ namespace Streaming_RTSP
         {
             containerRegistry.RegisterSingleton<IEventAggregator, EventAggregator>();
             containerRegistry.RegisterSingleton<IRTSPStreamingService, RTSPStreamingService>();
+            containerRegistry.RegisterSingleton<ILocalImageService, LocalImageService>();
 
 
             containerRegistry.Register<MainWindowViewModel>();

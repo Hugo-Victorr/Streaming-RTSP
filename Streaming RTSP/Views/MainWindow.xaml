@@ -3,14 +3,40 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="{Binding Title}" Height="600" Width="900">
+        Title="{Binding Title}" Height="700" Width="900">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80*"/>
-            <RowDefinition Height="20*"/>
+            <RowDefinition Height="70*"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="15*"/>
         </Grid.RowDefinitions>
         <Image Source="{Binding ImageSource, UpdateSourceTrigger=PropertyChanged}" Stretch="Uniform"/>
-        <Grid Grid.Row="1">
+        
+        <!-- Galeria Horizontal de Imagens Capturadas -->
+        <Border Grid.Row="1" Background="#F5F5F5" BorderBrush="#CCCCCC" BorderThickness="0,1,0,1">
+            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding CapturedImagePaths}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="5" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4" Background="White">
+                                <Image Source="{Binding}" 
+                                       Width="120" 
+                                       Height="90" 
+                                       Stretch="UniformToFill"
+                                       ToolTip="{Binding}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>

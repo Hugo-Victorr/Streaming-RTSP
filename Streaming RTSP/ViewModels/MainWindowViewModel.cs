@@ -4,6 +4,7 @@ using Prism.Mvvm;
 using Streaming_RTSP.Core.Events;
 using Streaming_RTSP.Services.Interfaces;
 using System;
+using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
 
 namespace Streaming_RTSP.ViewModels
@@ -81,11 +82,19 @@ namespace Streaming_RTSP.ViewModels
             }
         }
 
+        private ObservableCollection<string> _capturedImagePaths;
+        public ObservableCollection<string> CapturedImagePaths
+        {
+            get => _capturedImagePaths;
+            set => SetProperty(ref _capturedImagePaths, value);
+        }
+
         private WriteableBitmap writeableBitmap;
 
         public DelegateCommand StartStreamCommand { get; }
         public DelegateCommand StopStreamCommand { get; }
         public DelegateCommand TakeFrameCommand { get; }
+        public DelegateCommand RefreshImagesCommand { get; }
 
         private readonly IEventAggregator _eventAggregator;
         private readonly IRTSPStreamingService _rtspService;
@@ -100,13 +109,18 @@ namespace Streaming_RTSP.ViewModels
             _rtspService = rtspService;
             _localImageService = localImageService;
 
+            CapturedImagePaths = new ObservableCollection<string>();
+
             _eventAggregator.GetEvent<UpdateFrameViewerEvent>()
                 .Subscribe(OnFrameReady, ThreadOption.UIThread);
 
             StartStreamCommand = new DelegateCommand(ExecuteStartStream);
             StopStreamCommand = new DelegateCommand(ExecuteStopStream);
             TakeFrameCommand = new DelegateCommand(ExecuteTakeFrame, CanExecuteTakeFrame);
-            _localImageService = localImageService;
+            RefreshImagesCommand = new DelegateCommand(ExecuteRefreshImages);
+
+            // Carrega as imagens salvas ao inicializar
+            ExecuteRefreshImages();
         }
 
         private bool CanExecuteTakeFrame()
@@ -117,6 +131,17 @@ namespace Streaming_RTSP.ViewModels
         private void ExecuteTakeFrame()
         {
             _localImageService.SaveFrame(ImageSource, Core.Enums.ImageFormat.PNG);
+            ExecuteRefreshImages();
+        }
+
+        private void ExecuteRefreshImages()
+        {
+            var imagePaths = _localImageService.GetSavedImagesPaths();
+            CapturedImagePaths.Clear();
+            foreach (var path in imagePaths)
+            {
+                CapturedImagePaths.Add(path);
+            }
         }
 
         private void ExecuteStartStream()

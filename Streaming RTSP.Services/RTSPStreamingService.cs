@@ -229,7 +229,7 @@ namespace Streaming_RTSP.Services
                     frame,
                     new OpenCvSharp.Rect(f.X, f.Y, f.Width, f.Height),
                     Scalar.Green,
-                    thickness: 5
+                    thickness: 3
                 );
             }
         }

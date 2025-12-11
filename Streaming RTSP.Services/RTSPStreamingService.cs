@@ -19,7 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Vlc.DotNet.Wpf;
 
-namespace Streaming_RTSP.Services 
+namespace Streaming_RTSP.Services
 {
     public class RTSPStreamingService : IRTSPStreamingService
     {
@@ -71,14 +71,28 @@ namespace Streaming_RTSP.Services
 
         public void StartStream(string rtspUrl)
         {
-            if (_file != null)
-                return;
+            try
+            {
+                if (_file != null)
+                    return;
 
-            Initialize(rtspUrl);
-            _cts = new CancellationTokenSource();
-            _decodingTask = Task.Run(() => DecodingLoopWithOpenCvAsync(_cts.Token), _cts.Token);
-            _decodingTask.ContinueWith(Dispose,
-                TaskContinuationOptions.None);
+                if (!Initialize(rtspUrl))
+                    return;
+
+                _cts = new CancellationTokenSource();
+                _decodingTask = Task.Run(() => DecodingLoopWithOpenCvAsync(_cts.Token), _cts.Token);
+                _decodingTask.ContinueWith(Dispose,
+                    TaskContinuationOptions.None);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erro ao iniciar o stream:\n{ex.Message}",
+                    "Erro RTSP",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
         }
 
         public void StopStream()
@@ -86,11 +100,28 @@ namespace Streaming_RTSP.Services
             CancelStream();
         }
 
-        private void Initialize(string rtspUrl)
+        private bool Initialize(string rtspUrl)
         {
-            _rtspUrl = rtspUrl;
-            _file = MediaFile.Open(@$"{_rtspUrl}", new MediaOptions() { VideoPixelFormat = ImagePixelFormat.Bgra32 });
-            _writeableBitmap = new WriteableBitmap(_file.Video.Info.FrameSize.Width, _file.Video.Info.FrameSize.Height, 96, 96, PixelFormats.Bgra32, null);
+            try
+            {
+                _rtspUrl = rtspUrl;
+                _file = MediaFile.Open(@$"{_rtspUrl}", new MediaOptions() { VideoPixelFormat = ImagePixelFormat.Bgra32 });
+                _writeableBitmap = new WriteableBitmap(_file.Video.Info.FrameSize.Width, _file.Video.Info.FrameSize.Height, 96, 96, PixelFormats.Bgra32, null);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao conectar ao RTSP: {ex.Message} - {ex?.InnerException} - {ex?.StackTrace}");
+                MessageBox.Show(
+                    $"Erro ao conectar ao RTSP: \nVerifique se o servidor está ativo.",
+                    "Falha na Conexão",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+
+                _file = null;
+                return false;
+            }
         }
 
         /// <summary>
@@ -148,27 +179,48 @@ namespace Streaming_RTSP.Services
                         _eventAggregator.GetEvent<UpdateFrameViewerEvent>().Publish(_writeableBitmap);
                     });
 
-                    await Task.Delay(3, ct);
+                    await Task.Delay(33, ct);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(
+                    $"Streaming parado",
+                    "Parar streaming",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                    );
+                });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Decoding loop error: {ex.Message} - {ex?.InnerException} - {ex?.StackTrace}");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(
+                    $"Erro na leitura do stream:\n Verifique se a midia é valida.",
+                    "Erro de Decodificação",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                    );
+                });
             }
         }
 
         private void ApplyImageFilters(Mat frame)
         {
-            if(_detectFace)
+            if (_detectFace)
                 ApplyDetectFace(frame);
 
-            if(_sharp)
+            if (_sharp)
                 ApplySharp(frame);
-            
-            if(_blur)
+
+            if (_blur)
                 ApplyBlur(frame);
 
-            if(_grayscale)
+            if (_grayscale)
                 ApplyGrayscale(frame);
 
         }
@@ -199,38 +251,53 @@ namespace Streaming_RTSP.Services
 
         private void ApplyDetectFace(Mat frame)
         {
-            _frameCounter++;
-
-            // Só detecta a cada N frames
-            if (_frameCounter % _detectInterval == 0)
+            try
             {
-                using var gray = new Mat();
-                Cv2.CvtColor(frame, gray, ColorConversionCodes.BGRA2GRAY);
+                _frameCounter++;
 
-                var faces = _faceCascade.DetectMultiScale(
-                    gray,
-                    scaleFactor: 1.1,
-                    minNeighbors: 5,
-                    flags: HaarDetectionTypes.ScaleImage,
-                    minSize: new OpenCvSharp.Size(50, 50)
-                );
+                // Só detecta a cada N frames
+                if (_frameCounter % _detectInterval == 0)
+                {
+                    using var gray = new Mat();
+                    Cv2.CvtColor(frame, gray, ColorConversionCodes.BGRA2GRAY);
 
-                _lastFaces = faces;
+                    var faces = _faceCascade.DetectMultiScale(
+                        gray,
+                        scaleFactor: 1.1,
+                        minNeighbors: 5,
+                        flags: HaarDetectionTypes.ScaleImage,
+                        minSize: new OpenCvSharp.Size(50, 50)
+                    );
+
+                    _lastFaces = faces;
+                }
+
+                if (frame.Channels() == 1)
+                {
+                    Cv2.CvtColor(frame, frame, ColorConversionCodes.GRAY2BGRA);
+                }
+
+                foreach (var f in _lastFaces)
+                {
+                    Cv2.Rectangle(
+                        frame,
+                        new OpenCvSharp.Rect(f.X, f.Y, f.Width, f.Height),
+                        Scalar.Green,
+                        thickness: 3
+                    );
+                }
             }
-
-            if (frame.Channels() == 1)
+            catch (Exception ex)
             {
-                Cv2.CvtColor(frame, frame, ColorConversionCodes.GRAY2BGRA);
-            }
-
-            foreach (var f in _lastFaces)
-            {
-                Cv2.Rectangle(
-                    frame,
-                    new OpenCvSharp.Rect(f.X, f.Y, f.Width, f.Height),
-                    Scalar.Green,
-                    thickness: 3
-                );
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(
+                    $"Erro na detecção de rosto",
+                    "Erro OpenCV",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                    );
+                });
             }
         }
 

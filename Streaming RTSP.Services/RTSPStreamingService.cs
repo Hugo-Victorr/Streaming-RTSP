@@ -1,6 +1,7 @@
 ﻿using FFMediaToolkit.Decoding;
 using FFMediaToolkit.Graphics;
 using OpenCvSharp;
+using OpenCvSharp.Dnn;
 using Prism.Events;
 using Streaming_RTSP.Core.Enums;
 using Streaming_RTSP.Core.Events;
@@ -18,7 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Vlc.DotNet.Wpf;
 
-namespace Streaming_RTSP.Services
+namespace Streaming_RTSP.Services 
 {
     public class RTSPStreamingService : IRTSPStreamingService
     {
@@ -27,6 +28,7 @@ namespace Streaming_RTSP.Services
         private MediaFile _file;
         private string _rtspUrl;
         private WriteableBitmap _writeableBitmap;
+        private CascadeClassifier _faceCascade = new CascadeClassifier(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OpenCvFiles", "haarcascade_frontalface_default.xml"));
 
         private bool _sharp = false;
         public bool Sharp
@@ -48,6 +50,17 @@ namespace Streaming_RTSP.Services
             get => _grayscale;
             set => _grayscale = value;
         }
+
+        private bool _detectFace = false;
+        public bool DetectFace
+        {
+            get => _detectFace;
+            set => _detectFace = value;
+        }
+
+        private int _frameCounter = 0;
+        private int _detectInterval = 5;
+        private OpenCvSharp.Rect[] _lastFaces = Array.Empty<OpenCvSharp.Rect>();
 
         private readonly IEventAggregator _eventAggregator;
 
@@ -142,7 +155,7 @@ namespace Streaming_RTSP.Services
                         _eventAggregator.GetEvent<UpdateFrameViewerEvent>().Publish(_writeableBitmap);
                     });
 
-                    await Task.Delay(33, ct);
+                    await Task.Delay(3, ct);
                 }
             }
             catch (Exception ex)
@@ -161,6 +174,9 @@ namespace Streaming_RTSP.Services
 
             if(_grayscale)
                 ApplyGrayscale(frame);
+
+            if(_detectFace)
+                ApplyDetectFace(frame);
         }
 
         private void ApplyBlur(Mat frame)
@@ -185,6 +201,39 @@ namespace Streaming_RTSP.Services
 
             using var k = InputArray.Create(kernel);
             Cv2.Filter2D(frame, frame, MatType.CV_8UC4, k);
+        }
+
+        private void ApplyDetectFace(Mat frame)
+        {
+            _frameCounter++;
+
+            // Só detecta a cada N frames
+            if (_frameCounter % _detectInterval == 0)
+            {
+                using var gray = new Mat();
+                Cv2.CvtColor(frame, gray, ColorConversionCodes.BGRA2GRAY);
+
+                var faces = _faceCascade.DetectMultiScale(
+                    gray,
+                    scaleFactor: 1.1,
+                    minNeighbors: 5,
+                    flags: HaarDetectionTypes.ScaleImage,
+                    minSize: new OpenCvSharp.Size(50, 50)
+                );
+
+                _lastFaces = faces; // salva o resultado
+            }
+
+            // Desenha os últimos rostos detectados (não trava o vídeo)
+            foreach (var f in _lastFaces)
+            {
+                Cv2.Rectangle(
+                    frame,
+                    new OpenCvSharp.Rect(f.X, f.Y, f.Width, f.Height),
+                    Scalar.Red,
+                    thickness: 3
+                );
+            }
         }
 
         private void Dispose(Task completedTask)

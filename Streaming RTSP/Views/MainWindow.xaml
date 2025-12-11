@@ -10,33 +10,44 @@
             <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
         <Image Source="{Binding ImageSource, UpdateSourceTrigger=PropertyChanged}" Stretch="Uniform"/>
-        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Row="1" LastChildFill="False">
-            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                <Button Content="Iniciar Stream" 
-                    Command="{Binding StartStreamCommand}" 
-                    Margin="10"/>
-                <Button Content="Capturar Frame" 
-                    Command="{Binding TakeFrameCommand}" 
-                    Margin="10"/>
-                <Separator Width="1" Background="LightGray" Margin="5,0"/>
-                <CheckBox Content="Sharp" 
-                    IsChecked="{Binding Sharp, UpdateSourceTrigger=PropertyChanged}" 
-                    VerticalAlignment="Center"
-                    Margin="10,0"/>
-                <CheckBox Content="Blur" 
-                    IsChecked="{Binding Blur, UpdateSourceTrigger=PropertyChanged}" 
-                    VerticalAlignment="Center"
-                    Margin="10,0"/>
-                <CheckBox Content="Grayscale" 
-                    IsChecked="{Binding Grayscale, UpdateSourceTrigger=PropertyChanged}" 
-                    VerticalAlignment="Center"
-                    Margin="10,0"/>
-            </StackPanel>
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                <Button Content="Parar Stream" 
-                    Command="{Binding StopStreamCommand}" 
-                    Margin="10"/>
-            </StackPanel>
-        </DockPanel>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBox Width="400" Height="auto" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="16" Text="{Binding RtspUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Row="1" LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button Content="Iniciar Stream" 
+                        Command="{Binding StartStreamCommand}" 
+                        Margin="10"/>
+                    <Button Content="Capturar Frame" 
+                        Command="{Binding TakeFrameCommand}" 
+                        Margin="10"/>
+                    <Separator Width="1" Background="LightGray" Margin="5,0"/>
+                    <CheckBox Content="Sharp" 
+                        IsChecked="{Binding Sharp, UpdateSourceTrigger=PropertyChanged}" 
+                        VerticalAlignment="Center"
+                        Margin="10,0"/>
+                    <CheckBox Content="Blur" 
+                        IsChecked="{Binding Blur, UpdateSourceTrigger=PropertyChanged}" 
+                        VerticalAlignment="Center"
+                        Margin="10,0"/>
+                    <CheckBox Content="Grayscale" 
+                        IsChecked="{Binding Grayscale, UpdateSourceTrigger=PropertyChanged}" 
+                        VerticalAlignment="Center"
+                        Margin="10,0"/>
+                    <CheckBox Content="Detectar Rostos" 
+                        IsChecked="{Binding DetectFace, UpdateSourceTrigger=PropertyChanged}" 
+                        VerticalAlignment="Center"
+                        Margin="10,0"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Parar Stream" 
+                        Command="{Binding StopStreamCommand}" 
+                        Margin="10"/>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
     </Grid>
 </Window>

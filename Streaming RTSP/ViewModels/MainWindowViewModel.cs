@@ -58,6 +58,29 @@ namespace Streaming_RTSP.ViewModels
             }
         }
 
+        private bool _detectFace = false;
+        public bool DetectFace 
+        {
+            get => _detectFace;
+            set
+            {
+                if (SetProperty(ref _detectFace, value))
+                {
+                    _rtspService.DetectFace = value;
+                }
+            }
+        }
+
+        private string _rtspUrl = "rtsp://localhost:8554/stream";
+        public string RtspUrl
+        {
+            get => _rtspUrl;
+            set
+            {
+                if (SetProperty(ref _rtspUrl, value));
+            }
+        }
+
         private WriteableBitmap writeableBitmap;
 
         public DelegateCommand StartStreamCommand { get; }
@@ -98,8 +121,8 @@ namespace Streaming_RTSP.ViewModels
 
         private void ExecuteStartStream()
         {
-            string rtspUrl = "rtsp://localhost:8554/stream";
-            _rtspService.StartStream(rtspUrl);
+            //RtspUrl = "rtsp://localhost:8554/webcam";
+            _rtspService.StartStream(RtspUrl);
         }
 
         private void ExecuteStopStream()

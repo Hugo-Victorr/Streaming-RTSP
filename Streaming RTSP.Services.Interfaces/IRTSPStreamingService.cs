@@ -18,5 +18,7 @@ namespace Streaming_RTSP.Services.Interfaces
         bool Blur { get; set; }
 
         bool Grayscale { get; set; }
+
+        bool DetectFace { get; set; }
     }
 }

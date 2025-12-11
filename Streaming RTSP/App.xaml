@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:Streaming_RTSP"
              xmlns:prism="http://prismlibrary.com/" >
     <Application.Resources>
-         
+        
     </Application.Resources>
 </prism:PrismApplication>

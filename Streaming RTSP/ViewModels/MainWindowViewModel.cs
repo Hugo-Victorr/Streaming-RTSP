@@ -2,8 +2,12 @@
 using Prism.Events;
 using Prism.Mvvm;
 using Streaming_RTSP.Core.Events;
+using Streaming_RTSP.Core.Enums;
+using Streaming_RTSP.Core.Validators;
 using Streaming_RTSP.Services.Interfaces;
 using System;
+using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Streaming_RTSP.ViewModels
@@ -19,11 +23,88 @@ namespace Streaming_RTSP.ViewModels
             set => SetProperty(ref _imageSource, value);
         }
 
+        private bool _sharp = false;
+        public bool Sharp
+        {
+            get => _sharp;
+            set
+            {
+                if (SetProperty(ref _sharp, value))
+                {
+                    _rtspService.Sharp = value;
+                }
+            }
+        }
+
+        private bool _blur = false;
+        public bool Blur
+        {
+            get => _blur;
+            set
+            {
+                if (SetProperty(ref _blur, value))
+                {
+                    _rtspService.Blur = value;
+                }
+            }
+        }
+
+        private bool _grayscale = false;
+        public bool Grayscale
+        {
+            get => _grayscale;
+            set
+            {
+                if (SetProperty(ref _grayscale, value))
+                {
+                    _rtspService.Grayscale = value;
+                }
+            }
+        }
+
+        private bool _detectFace = false;
+        public bool DetectFace 
+        {
+            get => _detectFace;
+            set
+            {
+                if (SetProperty(ref _detectFace, value))
+                {
+                    _rtspService.DetectFace = value;
+                }
+            }
+        }
+
+        private string _rtspUrl = "rtsp://localhost:8554/stream";
+        public string RtspUrl
+        {
+            get => _rtspUrl;
+            set
+            {
+                if (SetProperty(ref _rtspUrl, value));
+            }
+        }
+
+        private ObservableCollection<string> _capturedImagePaths;
+        public ObservableCollection<string> CapturedImagePaths
+        {
+            get => _capturedImagePaths;
+            set => SetProperty(ref _capturedImagePaths, value);
+        }
+
+        private ImageFormat _selectedImageFormat = ImageFormat.PNG;
+        public ImageFormat SelectedImageFormat
+        {
+            get => _selectedImageFormat;
+            set => SetProperty(ref _selectedImageFormat, value);
+        }
+
         private WriteableBitmap writeableBitmap;
 
         public DelegateCommand StartStreamCommand { get; }
         public DelegateCommand StopStreamCommand { get; }
         public DelegateCommand TakeFrameCommand { get; }
+        public DelegateCommand RefreshImagesCommand { get; }
 
         private readonly IEventAggregator _eventAggregator;
         private readonly IRTSPStreamingService _rtspService;
@@ -38,7 +119,7 @@ namespace Streaming_RTSP.ViewModels
             _rtspService = rtspService;
             _localImageService = localImageService;
 
-
+            CapturedImagePaths = new ObservableCollection<string>();
 
             _eventAggregator.GetEvent<UpdateFrameViewerEvent>()
                 .Subscribe(OnFrameReady, ThreadOption.UIThread);
@@ -46,7 +127,9 @@ namespace Streaming_RTSP.ViewModels
             StartStreamCommand = new DelegateCommand(ExecuteStartStream);
             StopStreamCommand = new DelegateCommand(ExecuteStopStream);
             TakeFrameCommand = new DelegateCommand(ExecuteTakeFrame, CanExecuteTakeFrame);
-            _localImageService = localImageService;
+            RefreshImagesCommand = new DelegateCommand(ExecuteRefreshImages);
+
+            ExecuteRefreshImages();
         }
 
         private bool CanExecuteTakeFrame()
@@ -56,13 +139,29 @@ namespace Streaming_RTSP.ViewModels
 
         private void ExecuteTakeFrame()
         {
-            _localImageService.SaveFrame(ImageSource, Core.Enums.ImageFormat.PNG);
+            _localImageService.SaveFrame(ImageSource, SelectedImageFormat);
+            ExecuteRefreshImages();
+        }
+
+        private void ExecuteRefreshImages()
+        {
+            var imagePaths = _localImageService.GetSavedImagesPaths();
+            CapturedImagePaths.Clear();
+            foreach (var path in imagePaths)
+            {
+                CapturedImagePaths.Add(path);
+            }
         }
 
         private void ExecuteStartStream()
         {
-            string rtspUrl = "rtsp://localhost:8554/stream";
-            _rtspService.StartStream(rtspUrl);
+            if (!RtspUrlValidator.IsValid(RtspUrl, out string errorMessage))
+            {
+                MessageBox.Show(errorMessage, "URL RTSP Inválida", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            _rtspService.StartStream(RtspUrl);
         }
 
         private void ExecuteStopStream()

@@ -33,6 +33,8 @@ namespace Streaming_RTSP
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<IEventAggregator, EventAggregator>();
+            //containerRegistry.RegisterSingleton<IYunetDnnDetectorService>(
+            //    () => new YunetDnnDetectorService(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OpenCvFiles", "face_detection_yunet_2023mar.onnx")));
             containerRegistry.RegisterSingleton<IRTSPStreamingService, RTSPStreamingService>();
             containerRegistry.RegisterSingleton<ILocalImageService, LocalImageService>();
 

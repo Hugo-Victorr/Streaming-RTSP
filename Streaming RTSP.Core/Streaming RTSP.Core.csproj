@@ -11,6 +11,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="OpenCvFiles\face_detection_yunet_2023mar.onnx" />
+    <None Remove="OpenCvFiles\haarcascade_frontalface_default.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="OpenCvFiles\face_detection_yunet_2023mar.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenCvFiles\haarcascade_frontalface_default.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
     <PackageReference Include="Prism.Core" Version="8.1.97" />
   </ItemGroup>

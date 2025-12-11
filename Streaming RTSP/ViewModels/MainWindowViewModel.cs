@@ -19,6 +19,45 @@ namespace Streaming_RTSP.ViewModels
             set => SetProperty(ref _imageSource, value);
         }
 
+        private bool _sharp = false;
+        public bool Sharp
+        {
+            get => _sharp;
+            set
+            {
+                if (SetProperty(ref _sharp, value))
+                {
+                    _rtspService.Sharp = value;
+                }
+            }
+        }
+
+        private bool _blur = false;
+        public bool Blur
+        {
+            get => _blur;
+            set
+            {
+                if (SetProperty(ref _blur, value))
+                {
+                    _rtspService.Blur = value;
+                }
+            }
+        }
+
+        private bool _grayscale = false;
+        public bool Grayscale
+        {
+            get => _grayscale;
+            set
+            {
+                if (SetProperty(ref _grayscale, value))
+                {
+                    _rtspService.Grayscale = value;
+                }
+            }
+        }
+
         private WriteableBitmap writeableBitmap;
 
         public DelegateCommand StartStreamCommand { get; }
@@ -37,8 +76,6 @@ namespace Streaming_RTSP.ViewModels
             _eventAggregator = eventAggreggator;
             _rtspService = rtspService;
             _localImageService = localImageService;
-
-
 
             _eventAggregator.GetEvent<UpdateFrameViewerEvent>()
                 .Subscribe(OnFrameReady, ThreadOption.UIThread);

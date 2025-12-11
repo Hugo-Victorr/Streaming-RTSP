@@ -12,5 +12,11 @@ namespace Streaming_RTSP.Services.Interfaces
         void StartStream(string rtspUrl);
 
         void StopStream();
+
+        bool Sharp { get; set; }
+
+        bool Blur { get; set; }
+
+        bool Grayscale { get; set; }
     }
 }

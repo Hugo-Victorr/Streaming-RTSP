@@ -18,6 +18,19 @@
                 <Button Content="Capturar Frame" 
                     Command="{Binding TakeFrameCommand}" 
                     Margin="10"/>
+                <Separator Width="1" Background="LightGray" Margin="5,0"/>
+                <CheckBox Content="Sharp" 
+                    IsChecked="{Binding Sharp, UpdateSourceTrigger=PropertyChanged}" 
+                    VerticalAlignment="Center"
+                    Margin="10,0"/>
+                <CheckBox Content="Blur" 
+                    IsChecked="{Binding Blur, UpdateSourceTrigger=PropertyChanged}" 
+                    VerticalAlignment="Center"
+                    Margin="10,0"/>
+                <CheckBox Content="Grayscale" 
+                    IsChecked="{Binding Grayscale, UpdateSourceTrigger=PropertyChanged}" 
+                    VerticalAlignment="Center"
+                    Margin="10,0"/>
             </StackPanel>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button Content="Parar Stream" 

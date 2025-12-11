@@ -69,10 +69,6 @@ namespace Streaming_RTSP.Services
             _eventAggregator = eventAggregator;
         }
 
-        /// <summary>
-        /// Iniciar a tarefa de decoding do stream RTSP.
-        /// </summary>
-        /// <param name="rtspUrl"></param>
         public void StartStream(string rtspUrl)
         {
             if (_file != null)
@@ -85,9 +81,6 @@ namespace Streaming_RTSP.Services
                 TaskContinuationOptions.None);
         }
 
-        /// <summary>
-        /// Cancela a tarefa de decoding do stream RTSP.
-        /// </summary>
         public void StopStream()
         {
             CancelStream();
@@ -166,6 +159,9 @@ namespace Streaming_RTSP.Services
 
         private void ApplyImageFilters(Mat frame)
         {
+            if(_detectFace)
+                ApplyDetectFace(frame);
+
             if(_sharp)
                 ApplySharp(frame);
             
@@ -175,8 +171,6 @@ namespace Streaming_RTSP.Services
             if(_grayscale)
                 ApplyGrayscale(frame);
 
-            if(_detectFace)
-                ApplyDetectFace(frame);
         }
 
         private void ApplyBlur(Mat frame)
@@ -221,17 +215,21 @@ namespace Streaming_RTSP.Services
                     minSize: new OpenCvSharp.Size(50, 50)
                 );
 
-                _lastFaces = faces; // salva o resultado
+                _lastFaces = faces;
             }
 
-            // Desenha os últimos rostos detectados (não trava o vídeo)
+            if (frame.Channels() == 1)
+            {
+                Cv2.CvtColor(frame, frame, ColorConversionCodes.GRAY2BGRA);
+            }
+
             foreach (var f in _lastFaces)
             {
                 Cv2.Rectangle(
                     frame,
                     new OpenCvSharp.Rect(f.X, f.Y, f.Width, f.Height),
-                    Scalar.Red,
-                    thickness: 3
+                    Scalar.Green,
+                    thickness: 5
                 );
             }
         }

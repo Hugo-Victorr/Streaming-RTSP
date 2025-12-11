@@ -3,9 +3,11 @@ using Prism.Events;
 using Prism.Mvvm;
 using Streaming_RTSP.Core.Events;
 using Streaming_RTSP.Core.Enums;
+using Streaming_RTSP.Core.Validators;
 using Streaming_RTSP.Services.Interfaces;
 using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Streaming_RTSP.ViewModels
@@ -153,7 +155,12 @@ namespace Streaming_RTSP.ViewModels
 
         private void ExecuteStartStream()
         {
-            //RtspUrl = "rtsp://localhost:8554/webcam";
+            if (!RtspUrlValidator.IsValid(RtspUrl, out string errorMessage))
+            {
+                MessageBox.Show(errorMessage, "URL RTSP Inválida", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
             _rtspService.StartStream(RtspUrl);
         }
 

@@ -42,7 +42,7 @@ Baixar FFmpeg e *.dlls
 
 Baixar MediaMTX
 ---------
-1. faça download da versão para Windows;
+1. faça download da versão para Windows (https://github.com/bluenviron/mediamtx/releases)
 2. Extraia o arquivo;
 3. Execute o mediamtx.exe
 4. Servidor RTSP está executando e escutando na porta 8554;
@@ -67,7 +67,7 @@ Como rodar
 Ou abrir a solução no Visual Studio e executar o projeto `Streaming RTSP`.
 
 - Versão Release:
-1. Baixar a versão Release disponivel;
+1. Baixar a versão Release Latest (https://github.com/Hugo-Victorr/Streaming-RTSP/releases/tag/Latest)
 2. Extrair o conteudo;
 3. Executar Streaming RTSP.exe
 

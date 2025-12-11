@@ -2,6 +2,7 @@
 using Prism.Events;
 using Prism.Mvvm;
 using Streaming_RTSP.Core.Events;
+using Streaming_RTSP.Core.Enums;
 using Streaming_RTSP.Services.Interfaces;
 using System;
 using System.Collections.ObjectModel;
@@ -89,6 +90,13 @@ namespace Streaming_RTSP.ViewModels
             set => SetProperty(ref _capturedImagePaths, value);
         }
 
+        private ImageFormat _selectedImageFormat = ImageFormat.PNG;
+        public ImageFormat SelectedImageFormat
+        {
+            get => _selectedImageFormat;
+            set => SetProperty(ref _selectedImageFormat, value);
+        }
+
         private WriteableBitmap writeableBitmap;
 
         public DelegateCommand StartStreamCommand { get; }
@@ -119,7 +127,6 @@ namespace Streaming_RTSP.ViewModels
             TakeFrameCommand = new DelegateCommand(ExecuteTakeFrame, CanExecuteTakeFrame);
             RefreshImagesCommand = new DelegateCommand(ExecuteRefreshImages);
 
-            // Carrega as imagens salvas ao inicializar
             ExecuteRefreshImages();
         }
 
@@ -130,7 +137,7 @@ namespace Streaming_RTSP.ViewModels
 
         private void ExecuteTakeFrame()
         {
-            _localImageService.SaveFrame(ImageSource, Core.Enums.ImageFormat.PNG);
+            _localImageService.SaveFrame(ImageSource, SelectedImageFormat);
             ExecuteRefreshImages();
         }
 

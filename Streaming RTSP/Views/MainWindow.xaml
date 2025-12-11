@@ -2,8 +2,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:converters="clr-namespace:Streaming_RTSP.Converters"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}" Height="700" Width="900">
+    <Window.Resources>
+        <converters:ImageFormatToBoolConverter x:Key="ImageFormatToBoolConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="70*"/>
@@ -12,7 +16,6 @@
         </Grid.RowDefinitions>
         <Image Source="{Binding ImageSource, UpdateSourceTrigger=PropertyChanged}" Stretch="Uniform"/>
         
-        <!-- Galeria Horizontal de Imagens Capturadas -->
         <Border Grid.Row="1" Background="#F5F5F5" BorderBrush="#CCCCCC" BorderThickness="0,1,0,1">
             <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding CapturedImagePaths}">
@@ -50,6 +53,15 @@
                     <Button Content="Capturar Frame" 
                         Command="{Binding TakeFrameCommand}" 
                         Margin="10"/>
+                    <Separator Width="1" Background="LightGray" Margin="5,0"/>
+                    <RadioButton Content="PNG" 
+                        IsChecked="{Binding SelectedImageFormat, Converter={StaticResource ImageFormatToBoolConverter}, ConverterParameter=0}" 
+                        VerticalAlignment="Center"
+                        Margin="10,0"/>
+                    <RadioButton Content="JPEG" 
+                        IsChecked="{Binding SelectedImageFormat, Converter={StaticResource ImageFormatToBoolConverter}, ConverterParameter=1}" 
+                        VerticalAlignment="Center"
+                        Margin="10,0"/>
                     <Separator Width="1" Background="LightGray" Margin="5,0"/>
                     <CheckBox Content="Sharp" 
                         IsChecked="{Binding Sharp, UpdateSourceTrigger=PropertyChanged}" 
